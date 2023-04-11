@@ -4,21 +4,36 @@ interface SendMessagePayload {
 }
 
 class APIClient {
-  sendMessage(host: string, payload: SendMessagePayload) {
+  async sendMessage(host: string, payload: SendMessagePayload) {
     const abortController = new AbortController();
 
-    const response = fetch(`${host}/chatgpt/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-      signal: abortController.signal,
-    });
+    try {
+      const response = await fetch(`${host}/chatgpt/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        signal: abortController.signal,
+      });
 
-    return { response, abortController };
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+     const data = await response.json();
+
+      return { response,abortController,data};
+    } catch (error) {
+      console.error('Error:', error);
+
+      return { error };
+    }
   }
 }
+
+
+
 
 const API = new APIClient();
 
