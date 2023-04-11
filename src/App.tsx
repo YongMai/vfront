@@ -10,7 +10,7 @@ import { useSpeechRecognition } from 'react-speech-recognition';
 import {
   GitHub,
   Settings,
-  FilePlus,
+  Trash,
   Mic,
   Activity,
   Loader,
@@ -21,6 +21,9 @@ import {
   Check,
   Headphones,
   Info,
+  Trash2,
+  Link,
+  ExternalLink,
 } from 'react-feather';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -221,52 +224,47 @@ function App() {
       { type: 'prompt', text: finalTranscript },
     ]);
 
-    const host = Config.IS_LOCAL_SETUP_REQUIRED
-      ? `${settings.host}:${settings.port}`
-      : Config.API_HOST;
-    const { response, abortController } = API.sendMessage(host, {
-      text: finalTranscript,
-      parentMessageId: conversationRef.current.currentMessageId || undefined,
-    });
-    abortRef.current = abortController;
-
-    response
-      .then((res) => res.json())
-      .then((res: CreateChatGPTMessageResponse) => {
-        conversationRef.current.currentMessageId = res.messageId;
-        setMessages((oldMessages) => [
-          ...oldMessages,
-          { type: 'response', text: res.answer },
-        ]);
-        speak(res.answer);
-      })
-      .catch((err: unknown) => {
-        console.warn(err);
-        let response: string;
-
-        // Ignore aborted request
-        if (abortController.signal.aborted) {
-          return;
-        }
-
-        // Connection refused
-        if (err instanceof TypeError && Config.IS_LOCAL_SETUP_REQUIRED) {
-          response =
-            'Local server needs to be set up first. Click on the Settings button to see how.';
-          setIsTooltipVisible(true);
-        } else {
-          response = 'Failed to get the response, please try again.';
-        }
-        setMessages((oldMessages) => [
-          ...oldMessages,
-          { type: 'response', text: response },
-        ]);
-        speak(response);
-      })
-      .finally(() => {
-        setState(State.IDLE);
+    async function handleSendMessage() {
+    
+      const host = Config.IS_LOCAL_SETUP_REQUIRED
+        ? `${settings.host}:${settings.port}`
+        : Config.API_HOST;
+    
+      const { response, abortController, data } = await API.sendMessage(host, {
+        text: finalTranscript,
+        parentMessageId: conversationRef.current.currentMessageId || undefined,
       });
-  }, [state, finalTranscript, settings, speak]);
+    
+    
+      if (data) {
+        conversationRef.current.currentMessageId = data.messageId;
+        setMessages((oldMessages) => [
+          ...oldMessages,
+          { type: 'response', text: data.answer },
+        ]);
+        speak(data.answer);
+      } else {
+        let responseText: string;
+    
+        
+          responseText = 'Failed to get the response, please try again.';
+      
+    
+        setMessages((oldMessages) => [
+          ...oldMessages,
+          { type: 'response', text: responseText },
+        ]);
+        speak(responseText);
+      }
+    
+      setState(State.IDLE);
+    }
+    
+    
+      handleSendMessage();
+    }, [state, finalTranscript, settings, speak]);
+    
+    
 
   if (!browserSupportsSpeechRecognition) {
     return (
@@ -281,12 +279,12 @@ function App() {
       <header className="flex flex-col items-center lg:flex-row lg:justify-between lg:mb-4">
         {/* w-64 so text will break after ChatGPT */}
         <h1 className="font-title text-3xl text-center w-64 lg:w-auto">
-          ChatGPT With Voice
+          语音版ChatGPT
           <div className="inline-block w-4 h-7 ml-2 align-middle bg-dark/40 animate-blink" />
         </h1>
         <div className="mt-4 flex justify-center lg:px-2">
-          <a href="https://github.com/thanhsonng/chatgpt-voice" target="_blank">
-            <GitHub strokeWidth={1} />
+          <a href="https://yongmai.xyz" target="_blank">
+            <ExternalLink strokeWidth={1} />
           </a>
         </div>
       </header>
@@ -422,262 +420,10 @@ function App() {
           </button>
 
           <Button aria-label="New conversation" onClick={resetConversation}>
-            <FilePlus strokeWidth={1} />
+            <Trash2 strokeWidth={1} />
           </Button>
         </div>
       </div>
-
-      {/* Settings modal */}
-      <Dialog.Root open={isModalVisible} onOpenChange={handleModalOpenChange}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="bg-dark/75 fixed inset-0 animate-fade-in" />
-          <Dialog.Content
-            className={`bg-light border border-dark rounded-lg shadow-solid fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5/6 max-w-md max-h-screen p-6 animate-rise-up focus:outline-none overflow-y-auto ${
-              Config.IS_LOCAL_SETUP_REQUIRED ? 'lg:max-w-5xl' : ''
-            }`}
-          >
-            <Dialog.Title className="font-medium text-xl mb-4">
-              Settings
-            </Dialog.Title>
-
-            {Config.IS_LOCAL_SETUP_REQUIRED && (
-              <Dialog.Description>
-                Set up local server on Desktop in 3 easy steps.
-              </Dialog.Description>
-            )}
-
-            <main className="lg:flex lg:gap-x-12">
-              {Config.IS_LOCAL_SETUP_REQUIRED && (
-                <div>
-                  <h3 className="text-lg font-medium mt-3">Step 1</h3>
-                  <p>
-                    Clone <code>chatgpt-server</code> repo.
-                  </p>
-                  <SyntaxHighlighter language="bash">
-                    git clone https://github.com/thanhsonng/chatgpt-server.git
-                  </SyntaxHighlighter>
-
-                  <h3 className="text-lg font-medium mt-3">Step 2</h3>
-                  <p>
-                    Create <code>.env</code> file in the project's root. You
-                    need an{' '}
-                    <a href="https://openai.com/api/" target="_blank">
-                      OpenAI account
-                    </a>
-                    .
-                  </p>
-                  <SyntaxHighlighter language="bash">
-                    {[
-                      'PORT=8000 # Or whichever port available',
-                      'OPENAI_EMAIL="<your-openai-email>"',
-                      'OPENAI_PASSWORD="<your-openai-password>"',
-                    ].join('\n')}
-                  </SyntaxHighlighter>
-
-                  <h3 className="text-lg font-medium mt-3">Step 3</h3>
-                  <p>
-                    Start the server - done! Make sure you are using Node 18 or
-                    higher.
-                  </p>
-                  <SyntaxHighlighter language="bash">
-                    {['npm install', 'npm run build', 'npm run start'].join(
-                      '\n',
-                    )}
-                  </SyntaxHighlighter>
-                </div>
-              )}
-
-              <div className="lg:w-full">
-                {Config.IS_LOCAL_SETUP_REQUIRED && isDesktop && (
-                  <div className="mb-4">
-                    <h3 className="text-lg font-medium mt-3">Server</h3>
-
-                    <fieldset className="flex flex-col mt-2">
-                      <label htmlFor="host">Host</label>
-                      <div className="flex">
-                        <input
-                          id="host"
-                          value={settings.host}
-                          onChange={(e) => {
-                            setSettings({ ...settings, host: e.target.value });
-                          }}
-                          className="border border-dark border-r-0 rounded-l-md bg-transparent p-2 flex-1"
-                        />
-                        <Button
-                          iconOnly={false}
-                          className="rounded-l-none"
-                          onClick={() => resetSetting('host')}
-                        >
-                          Reset
-                        </Button>
-                      </div>
-                    </fieldset>
-                    <fieldset className="flex flex-col mt-2">
-                      <label htmlFor="port">Port</label>
-                      <div className="flex">
-                        <input
-                          id="port"
-                          type="number"
-                          value={settings.port}
-                          onChange={(e) => {
-                            setSettings({
-                              ...settings,
-                              port: Number(e.target.value),
-                            });
-                          }}
-                          className="border border-dark border-r-0 rounded-l-md bg-transparent p-2 flex-1"
-                        />
-                        <Button
-                          iconOnly={false}
-                          className="rounded-l-none"
-                          onClick={() => resetSetting('port')}
-                        >
-                          Reset
-                        </Button>
-                      </div>
-                    </fieldset>
-
-                    <small className="mt-2 flex items-center gap-x-1">
-                      <Info strokeWidth={1} size={16} />
-                      This app will find the server at{' '}
-                      {`${settings.host}:${settings.port}`}
-                    </small>
-                  </div>
-                )}
-
-                <div>
-                  <h3 className="text-lg font-medium">Voice</h3>
-
-                  <fieldset className="flex flex-col mt-2">
-                    <label htmlFor="voice-name">Name</label>
-                    <div className="flex">
-                      <Select.Root
-                        value={settings.voiceURI}
-                        onValueChange={(value) => {
-                          setSettings({
-                            ...settings,
-                            voiceURI: value,
-                          });
-                        }}
-                      >
-                        <Select.Trigger
-                          id="voice-name"
-                          className="inline-flex items-center justify-between border border-dark border-r-0 rounded-md rounded-r-none p-2 text-sm gap-1 bg-transparent flex-1"
-                          aria-label="Voice name"
-                        >
-                          <Select.Value />
-                          <Select.Icon>
-                            <ChevronDown strokeWidth={1} />
-                          </Select.Icon>
-                        </Select.Trigger>
-                        <Select.Portal>
-                          <Select.Content className="overflow-hidden bg-light rounded-md border border-dark">
-                            <Select.ScrollUpButton className="flex items-center justify-center h-6 bg-light cursor-default">
-                              <ChevronUp strokeWidth={1} />
-                            </Select.ScrollUpButton>
-                            <Select.Viewport className="p-2">
-                              {Object.entries(availableVoices).map(
-                                ([group, voicesInGroup], index) => (
-                                  <Fragment key={group}>
-                                    {index > 0 && (
-                                      <Select.Separator className="h-px bg-dark m-1" />
-                                    )}
-
-                                    <Select.Group>
-                                      <Select.Label className="px-6 py-0 text-xs text-dark/50">
-                                        {group}
-                                      </Select.Label>
-                                      {voicesInGroup.map((voice) => (
-                                        <Select.Item
-                                          key={voice.voiceURI}
-                                          className="text-sm rounded flex items-center h-6 py-0 pl-6 pr-9 relative select-none data-[highlighted]:outline-none data-[highlighted]:bg-dark data-[highlighted]:text-light data-[disabled]:text-dark/50 data-[disabled]:pointer-events-none"
-                                          value={voice.voiceURI}
-                                        >
-                                          <Select.ItemText>
-                                            {voice.name}
-                                          </Select.ItemText>
-                                          <Select.ItemIndicator className="absolute left-0 w-6 inline-flex items-center justify-center">
-                                            <Check strokeWidth={1} />
-                                          </Select.ItemIndicator>
-                                        </Select.Item>
-                                      ))}
-                                    </Select.Group>
-                                  </Fragment>
-                                ),
-                              )}
-                            </Select.Viewport>
-                            <Select.ScrollDownButton className="flex items-center justify-center h-6 bg-light cursor-default">
-                              <ChevronDown strokeWidth={1} />
-                            </Select.ScrollDownButton>
-                          </Select.Content>
-                        </Select.Portal>
-                      </Select.Root>
-                      <Button
-                        iconOnly={false}
-                        className="rounded-l-none"
-                        onClick={() => resetSetting('voiceURI')}
-                      >
-                        Reset
-                      </Button>
-                    </div>
-                  </fieldset>
-
-                  <fieldset className="flex flex-col mt-4">
-                    <label htmlFor="voice-speed">Speed</label>
-                    <div className="flex gap-x-4 items-center">
-                      <Slider.Root
-                        id="voice-speed"
-                        className="relative flex items-center select-none touch-none h-5 flex-1"
-                        value={[settings.voiceSpeed]}
-                        onValueChange={([newSpeed]) => {
-                          setSettings({ ...settings, voiceSpeed: newSpeed });
-                        }}
-                        max={2}
-                        min={0.5}
-                        step={0.1}
-                        aria-label="Voice speed"
-                      >
-                        <Slider.Track className="bg-dark relative flex-1 rounded-full h-1">
-                          <Slider.Range className="absolute bg-dark rounded-full h-full" />
-                        </Slider.Track>
-                        <Slider.Thumb className="block w-5 h-5 bg-light border border-dark rounded-full" />
-                      </Slider.Root>
-                      <div className="text-right">
-                        {`${settings.voiceSpeed.toFixed(2)}x`}
-                      </div>
-                      <Button
-                        iconOnly={false}
-                        onClick={() => resetSetting('voiceSpeed')}
-                      >
-                        Reset
-                      </Button>
-                    </div>
-                  </fieldset>
-
-                  <Button
-                    iconOnly={false}
-                    className="mt-2"
-                    onClick={() => speak('It was a dark and stormy night')}
-                  >
-                    <Headphones strokeWidth={1} />
-                    <span className="ml-1">Try speaking</span>
-                  </Button>
-                </div>
-              </div>
-            </main>
-
-            <Dialog.Close asChild>
-              <Button
-                className="absolute top-6 right-6"
-                aria-label="Close"
-                size="small"
-              >
-                <X strokeWidth={1} size={16} />
-              </Button>
-            </Dialog.Close>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
     </div>
   );
 }
