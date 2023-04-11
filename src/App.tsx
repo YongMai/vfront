@@ -424,6 +424,214 @@ function App() {
           </Button>
         </div>
       </div>
+    {/* Settings modal */}
+    <Dialog.Root open={isModalVisible} onOpenChange={handleModalOpenChange}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="bg-dark/75 fixed inset-0 animate-fade-in" />
+          <Dialog.Content
+            className={`bg-light border border-dark rounded-lg shadow-solid fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5/6 max-w-md max-h-screen p-6 animate-rise-up focus:outline-none overflow-y-auto ${
+              Config.IS_LOCAL_SETUP_REQUIRED ? 'lg:max-w-5xl' : ''
+            }`}
+          >
+            <Dialog.Title className="font-medium text-xl mb-4">
+              Settings
+            </Dialog.Title>
+
+            
+
+            <main className="lg:flex lg:gap-x-12">
+              
+              <div className="lg:w-full">
+                {Config.IS_LOCAL_SETUP_REQUIRED && isDesktop && (
+                  <div className="mb-4">
+                    <h3 className="text-lg font-medium mt-3">Server</h3>
+
+                    <fieldset className="flex flex-col mt-2">
+                      <label htmlFor="host">Host</label>
+                      <div className="flex">
+                        <input
+                          id="host"
+                          value={settings.host}
+                          onChange={(e) => {
+                            setSettings({ ...settings, host: e.target.value });
+                          }}
+                          className="border border-dark border-r-0 rounded-l-md bg-transparent p-2 flex-1"
+                        />
+                        <Button
+                          iconOnly={false}
+                          className="rounded-l-none"
+                          onClick={() => resetSetting('host')}
+                        >
+                          Reset
+                        </Button>
+                      </div>
+                    </fieldset>
+                    <fieldset className="flex flex-col mt-2">
+                      <label htmlFor="port">Port</label>
+                      <div className="flex">
+                        <input
+                          id="port"
+                          type="number"
+                          value={settings.port}
+                          onChange={(e) => {
+                            setSettings({
+                              ...settings,
+                              port: Number(e.target.value),
+                            });
+                          }}
+                          className="border border-dark border-r-0 rounded-l-md bg-transparent p-2 flex-1"
+                        />
+                        <Button
+                          iconOnly={false}
+                          className="rounded-l-none"
+                          onClick={() => resetSetting('port')}
+                        >
+                          Reset
+                        </Button>
+                      </div>
+                    </fieldset>
+
+                    <small className="mt-2 flex items-center gap-x-1">
+                      <Info strokeWidth={1} size={16} />
+                      This app will find the server at{' '}
+                      {`${settings.host}:${settings.port}`}
+                    </small>
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="text-lg font-medium">Voice</h3>
+
+                  <fieldset className="flex flex-col mt-2">
+                    <label htmlFor="voice-name">Name</label>
+                    <div className="flex">
+                      <Select.Root
+                        value={settings.voiceURI}
+                        onValueChange={(value) => {
+                          setSettings({
+                            ...settings,
+                            voiceURI: value,
+                          });
+                        }}
+                      >
+                        <Select.Trigger
+                          id="voice-name"
+                          className="inline-flex items-center justify-between border border-dark border-r-0 rounded-md rounded-r-none p-2 text-sm gap-1 bg-transparent flex-1"
+                          aria-label="Voice name"
+                        >
+                          <Select.Value />
+                          <Select.Icon>
+                            <ChevronDown strokeWidth={1} />
+                          </Select.Icon>
+                        </Select.Trigger>
+                        <Select.Portal>
+                          <Select.Content className="overflow-hidden bg-light rounded-md border border-dark">
+                            <Select.ScrollUpButton className="flex items-center justify-center h-6 bg-light cursor-default">
+                              <ChevronUp strokeWidth={1} />
+                            </Select.ScrollUpButton>
+                            <Select.Viewport className="p-2">
+                              {Object.entries(availableVoices).map(
+                                ([group, voicesInGroup], index) => (
+                                  <Fragment key={group}>
+                                    {index > 0 && (
+                                      <Select.Separator className="h-px bg-dark m-1" />
+                                    )}
+
+                                    <Select.Group>
+                                      <Select.Label className="px-6 py-0 text-xs text-dark/50">
+                                        {group}
+                                      </Select.Label>
+                                      {voicesInGroup.map((voice) => (
+                                        <Select.Item
+                                          key={voice.voiceURI}
+                                          className="text-sm rounded flex items-center h-6 py-0 pl-6 pr-9 relative select-none data-[highlighted]:outline-none data-[highlighted]:bg-dark data-[highlighted]:text-light data-[disabled]:text-dark/50 data-[disabled]:pointer-events-none"
+                                          value={voice.voiceURI}
+                                        >
+                                          <Select.ItemText>
+                                            {voice.name}
+                                          </Select.ItemText>
+                                          <Select.ItemIndicator className="absolute left-0 w-6 inline-flex items-center justify-center">
+                                            <Check strokeWidth={1} />
+                                          </Select.ItemIndicator>
+                                        </Select.Item>
+                                      ))}
+                                    </Select.Group>
+                                  </Fragment>
+                                ),
+                              )}
+                            </Select.Viewport>
+                            <Select.ScrollDownButton className="flex items-center justify-center h-6 bg-light cursor-default">
+                              <ChevronDown strokeWidth={1} />
+                            </Select.ScrollDownButton>
+                          </Select.Content>
+                        </Select.Portal>
+                      </Select.Root>
+                      <Button
+                        iconOnly={false}
+                        className="rounded-l-none"
+                        onClick={() => resetSetting('voiceURI')}
+                      >
+                        Reset
+                      </Button>
+                    </div>
+                  </fieldset>
+
+                  <fieldset className="flex flex-col mt-4">
+                    <label htmlFor="voice-speed">Speed</label>
+                    <div className="flex gap-x-4 items-center">
+                      <Slider.Root
+                        id="voice-speed"
+                        className="relative flex items-center select-none touch-none h-5 flex-1"
+                        value={[settings.voiceSpeed]}
+                        onValueChange={([newSpeed]) => {
+                          setSettings({ ...settings, voiceSpeed: newSpeed });
+                        }}
+                        max={2}
+                        min={0.5}
+                        step={0.1}
+                        aria-label="Voice speed"
+                      >
+                        <Slider.Track className="bg-dark relative flex-1 rounded-full h-1">
+                          <Slider.Range className="absolute bg-dark rounded-full h-full" />
+                        </Slider.Track>
+                        <Slider.Thumb className="block w-5 h-5 bg-light border border-dark rounded-full" />
+                      </Slider.Root>
+                      <div className="text-right">
+                        {`${settings.voiceSpeed.toFixed(2)}x`}
+                      </div>
+                      <Button
+                        iconOnly={false}
+                        onClick={() => resetSetting('voiceSpeed')}
+                      >
+                        Reset
+                      </Button>
+                    </div>
+                  </fieldset>
+
+                  <Button
+                    iconOnly={false}
+                    className="mt-2"
+                    onClick={() => speak('It was a dark and stormy night')}
+                  >
+                    <Headphones strokeWidth={1} />
+                    <span className="ml-1">Try speaking</span>
+                  </Button>
+                </div>
+              </div>
+            </main>
+
+            <Dialog.Close asChild>
+              <Button
+                className="absolute top-6 right-6"
+                aria-label="Close"
+                size="small"
+              >
+                <X strokeWidth={1} size={16} />
+              </Button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }
