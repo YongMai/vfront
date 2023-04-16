@@ -22,7 +22,10 @@ export default function useVoices() {
   const checkVoices = () => {
     const newVoices = window.speechSynthesis.getVoices();
     if (newVoices.length > 0) {
-      updateVoiceSettings();
+       window.speechSynthesis.addEventListener(
+      'voiceschanged',
+      updateVoiceSettings,
+    );
     } else {
       // Schedule the next check only if the previous check didn't find any voices
       setTimeout(checkVoices, 100);
@@ -38,7 +41,11 @@ export default function useVoices() {
     checkVoices = () => {};
   }, 10_000);
 
-  return () => clearTimeout(timeoutId);
+  return () => {
+  clearTimeout(timeoutId);
+  window.speechSynthesis.removeEventListener('voiceschanged', updateVoiceSettings);
+};
+
 }
 
 
