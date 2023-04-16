@@ -18,36 +18,27 @@ export default function useVoices() {
     // Safari doesn't support `voiceschanged` event, so we have to
     // periodically check if voices are loaded.
     // So is any mobile browser on iOS.
-   if (isSafari || isMobile) {
-  const checkVoices = () => {
-    const newVoices = window.speechSynthesis.getVoices();
-    if (newVoices.length > 0) {
-       window.speechSynthesis.addEventListener(
-      'voiceschanged',
-      updateVoiceSettings,
-    );
-    } else {
-      // Schedule the next check only if the previous check didn't find any voices
-      setTimeout(checkVoices, 100);
+    if (isSafari || isMobile) {
+      let interval = setInterval(() => {
+        const newVoices = window.speechSynthesis.getVoices();
+        if (newVoices.length > 0) {
+          clearInterval(interval); 
+          window.speechSynthesis.addEventListener(
+            'voiceschanged',
+            updateVoiceSettings,
+          );
+        }
+      }, 100);
+      // Stop checking after 10 seconds
+      setTimeout(() => clearInterval(interval), 10_000);
+
+      return () => {clearInterval(interval); 
+        window.speechSynthesis.removeEventListener(
+        'voiceschanged',
+        updateVoiceSettings,
+      );
+    };
     }
-  };
-
-  // Initiate the first check
-  checkVoices();
-
-  // Stop checking after 10 seconds
-  const timeoutId = setTimeout(() => {
-    // Overwrite the checkVoices function to prevent further checks
-    checkVoices = () => {};
-  }, 10_000);
-
-  return () => {
-  clearTimeout(timeoutId);
-  window.speechSynthesis.removeEventListener('voiceschanged', updateVoiceSettings);
-};
-
-}
-
 
     window.speechSynthesis.addEventListener(
       'voiceschanged',
