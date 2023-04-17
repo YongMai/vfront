@@ -171,8 +171,7 @@ function App() {
 
   useEffect(() => {
     setState((oldState) => {
-      if (listening) {
-        if(finalTranscript){return State.IDLE;}
+      if (listening && !finalTranscript) {
         return State.LISTENING;
       }
       if (
