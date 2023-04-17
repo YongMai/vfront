@@ -18,7 +18,7 @@ export default function useVoices() {
     // Safari doesn't support `voiceschanged` event, so we have to
     // periodically check if voices are loaded.
     // So is any mobile browser on iOS.
-      if (isSafari || isMobile) {
+       if (isSafari || isMobile) {
       let interval = setInterval(() => {
        
 const newVoices = window.speechSynthesis.getVoices();
@@ -31,6 +31,7 @@ const updateVoiceSettingss = () => {
 if (newVoices.length > 0) {
   clearInterval(interval);
   updateVoiceSettingss(); // Pass only the first voice
+  window.speechSynthesis.cancel();
   window.speechSynthesis.addEventListener('voiceschanged', updateVoiceSettingss);
 }
       }, 100);
@@ -38,6 +39,7 @@ if (newVoices.length > 0) {
       setTimeout(() => clearInterval(interval), 10_000);
 
       return () => {clearInterval(interval); 
+        window.speechSynthesis.cancel();
         {
           window.speechSynthesis.removeEventListener(
             'voiceschanged',
