@@ -139,9 +139,6 @@ function App() {
     } else if (state === State.LISTENING) {
       Voice.stopListening();
     }
-    else if (state === State.PROCESSING) {
-      Voice.stopListening();
-    }
   };
 
   const speak = useCallback(
@@ -175,6 +172,7 @@ function App() {
   useEffect(() => {
     setState((oldState) => {
       if (listening) {
+        if(transcript){return State.PROCESSING;}
         return State.LISTENING;
       }
       if (
