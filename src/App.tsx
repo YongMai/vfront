@@ -218,7 +218,7 @@ function App() {
     if (state !== State.PROCESSING || !finalTranscript) {
       return;
     }
-
+    Voice.stopListening();
     setMessages((oldMessages) => [
       ...oldMessages,
       { type: 'prompt', text: finalTranscript },
