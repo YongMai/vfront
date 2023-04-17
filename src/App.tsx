@@ -58,6 +58,7 @@ enum State {
   IDLE,
   LISTENING,
   PROCESSING,
+  Singel,
 }
 
 const savedData = Storage.load();
@@ -174,9 +175,10 @@ function App() {
       if (listening && !finalTranscript) {
         return State.LISTENING;
       }
-       if (listening && State.PROCESSING) {
+       if (listening && oldState === State.PROCESSING) {
         Voice.stopListening();
         window.speechSynthesis.cancel();
+        return State.Singel;
       }
       if (
         (oldState === State.LISTENING && transcript) || // At this point finalTranscript may not have a value yet
