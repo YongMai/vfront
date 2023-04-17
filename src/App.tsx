@@ -218,6 +218,10 @@ function App() {
     if (state !== State.PROCESSING || !finalTranscript) {
       return;
     }
+    
+      if (listening) {
+      return;
+    }
 
     setMessages((oldMessages) => [
       ...oldMessages,
