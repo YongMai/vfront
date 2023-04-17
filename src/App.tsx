@@ -139,6 +139,9 @@ function App() {
     } else if (state === State.LISTENING) {
       Voice.stopListening();
     }
+    else if (state === State.PROCESSING) {
+      Voice.stopListening();
+    }
   };
 
   const speak = useCallback(
