@@ -22,7 +22,7 @@ export default function useVoices() {
       let interval = setInterval(() => {
        
 const newVoices = window.speechSynthesis.getVoices();
-const updateVoiceSettings = () => {
+const updateVoiceSettingss = () => {
   const newVoices = window.speechSynthesis.getVoices();
   if (newVoices.length > 0) {
     setVoices([newVoices[0]]);
@@ -30,13 +30,13 @@ const updateVoiceSettings = () => {
 };
 if (newVoices.length > 0) {
   clearInterval(interval);
-  updateVoiceSettings(); // Pass only the first voice
-  window.speechSynthesis.addEventListener('voiceschanged', updateVoiceSettings);
+  updateVoiceSettingss(); // Pass only the first voice
+  window.speechSynthesis.addEventListener('voiceschanged', updateVoiceSettingss);
 }
 else{
           window.speechSynthesis.removeEventListener(
             'voiceschanged',
-            updateVoiceSettings,
+            updateVoiceSettingss,
           );
         }
       }, 100);
