@@ -174,8 +174,9 @@ function App() {
       if (listening && !finalTranscript) {
         return State.LISTENING;
       }
-      if (listening && finalTranscript) {
+       if (listening && oldState === State.PROCESSING) {
         Voice.stopListening();
+        window.speechSynthesis.cancel();
       }
       if (
         (oldState === State.LISTENING && transcript) || // At this point finalTranscript may not have a value yet
