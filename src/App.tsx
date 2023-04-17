@@ -174,9 +174,6 @@ function App() {
       if (listening && !finalTranscript) {
         return State.LISTENING;
       }
-      if (listening && finalTranscript) {
-        return State.PROCESSING;
-      }
       if (
         (oldState === State.LISTENING && transcript) || // At this point finalTranscript may not have a value yet
         oldState === State.PROCESSING // Avoid setting state to IDLE when transcript is set to '' while processing
@@ -238,6 +235,7 @@ function App() {
         parentMessageId: conversationRef.current.currentMessageId || undefined,
       });
     
+      Voice.stopListening();
     
       if (data) {
         conversationRef.current.currentMessageId = data.messageId;
