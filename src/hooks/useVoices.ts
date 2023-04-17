@@ -23,21 +23,21 @@ export default function useVoices() {
         const newVoices = window.speechSynthesis.getVoices();
         if (newVoices.length > 0) {
           clearInterval(interval); 
-          updateVoiceSettings();
           window.speechSynthesis.addEventListener(
             'voiceschanged',
+            updateVoiceSettings,
+          );
+        }else{
+          window.speechSynthesis.removeEventListener(
+            'voiceschanged',
+            updateVoiceSettings,
           );
         }
       }, 100);
       // Stop checking after 10 seconds
       setTimeout(() => clearInterval(interval), 10_000);
 
-      return () => {clearInterval(interval); 
-        window.speechSynthesis.removeEventListener(
-        'voiceschanged',
-        updateVoiceSettings,
-      );
-    };
+      return () => clearInterval(interval); 
     }
 
     window.speechSynthesis.addEventListener(
