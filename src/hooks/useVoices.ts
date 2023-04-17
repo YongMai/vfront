@@ -34,7 +34,7 @@ if (newVoices.length > 0) {
   window.speechSynthesis.cancel();
   window.speechSynthesis.addEventListener('voiceschanged', updateVoiceSettingss);
 }
-      }, 10000);
+      }, 100);
       // Stop checking after 10 seconds
       setTimeout(() => clearInterval(interval), 10_000);
 
