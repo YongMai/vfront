@@ -172,7 +172,7 @@ function App() {
   useEffect(() => {
     setState((oldState) => {
       if (listening) {
-        if(transcript){return State.PROCESSING;}
+        if(finalTranscript){return State.IDLE;}
         return State.LISTENING;
       }
       if (
