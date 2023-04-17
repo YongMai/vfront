@@ -29,8 +29,8 @@ export default function useVoices() {
           );
         }
       }, 100);
-      // Stop checking after 1 seconds
-      setTimeout(() => clearInterval(interval), 1_000);
+      // Stop checking after 0.1 seconds
+      setTimeout(() => clearInterval(interval), 100);
 
       return () => {clearInterval(interval); 
         window.speechSynthesis.removeEventListener(
