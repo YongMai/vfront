@@ -26,6 +26,7 @@ const updateVoiceSettingss = () => {
   const newVoices = window.speechSynthesis.getVoices();
   if (newVoices.length > 0) {
     setVoices([newVoices[0]]);
+    speechSynthesis.cancel();
   }
 };
 if (newVoices.length > 0) {
