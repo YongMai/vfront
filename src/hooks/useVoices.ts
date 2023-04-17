@@ -20,14 +20,15 @@ export default function useVoices() {
     // So is any mobile browser on iOS.
     if (isSafari || isMobile) {
       let interval = setInterval(() => {
-        const newVoices = window.speechSynthesis.getVoices();
-        if (newVoices.length > 0) {
-          clearInterval(interval); 
-          window.speechSynthesis.addEventListener(
-            'voiceschanged',
-            updateVoiceSettings,
-          );
-        }else{
+        let lastVoiceUpdateTime = Date.now();
+
+const newVoices = window.speechSynthesis.getVoices();
+if (newVoices.length > 0 && Date.now() - lastVoiceUpdateTime > 500) {
+  clearInterval(interval);
+  lastVoiceUpdateTime = Date.now();
+  window.speechSynthesis.addEventListener('voiceschanged', updateVoiceSettings);
+}
+else{
           window.speechSynthesis.removeEventListener(
             'voiceschanged',
             updateVoiceSettings,
