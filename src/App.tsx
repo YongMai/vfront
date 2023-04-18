@@ -175,11 +175,11 @@ function App() {
       if (listening) {
         return State.LISTENING;
       }
-    /*   if (oldState === State.PROCESSING && listening) {
+   if (oldState === State.Singel) {
         Voice.stopListening();
         window.speechSynthesis.cancel();
         return State.Singel;
-      } */
+      }
       if (
         (oldState === State.LISTENING && transcript) || // At this point finalTranscript may not have a value yet
         oldState === State.PROCESSING // Avoid setting state to IDLE when transcript is set to '' while processing
