@@ -172,14 +172,14 @@ function App() {
 
   useEffect(() => {
     setState((oldState) => {
-      if (listening && !finalTranscript) {
+      if (listening) {
         return State.LISTENING;
       }
-   if (oldState === State.PROCESSING && listening) {
+    /*   if (oldState === State.PROCESSING && listening) {
         Voice.stopListening();
         window.speechSynthesis.cancel();
         return State.Singel;
-      }
+      } */
       if (
         (oldState === State.LISTENING && transcript) || // At this point finalTranscript may not have a value yet
         oldState === State.PROCESSING // Avoid setting state to IDLE when transcript is set to '' while processing
@@ -221,14 +221,17 @@ function App() {
   }, [defaultVoice]);
 
   useEffect(() => {
-    if (state !== State.PROCESSING || !finalTranscript) {
+    if (state !== State.PROCESSING || !finalTranscript ) {
       return;
     }
-    Voice.stopListening();
-    setMessages((oldMessages) => [
-      ...oldMessages,
-      { type: 'prompt', text: finalTranscript },
-    ]);
+
+    
+      setMessages((oldMessages) => [
+        ...oldMessages,
+        { type: 'prompt', text: finalTranscript },
+      ]);
+    
+      setState(State.Singel);
 
     async function handleSendMessage() {
     
@@ -240,8 +243,7 @@ function App() {
         text: finalTranscript,
         parentMessageId: conversationRef.current.currentMessageId || undefined,
       });
-    
-      Voice.stopListening();
+      
     
       if (data) {
         conversationRef.current.currentMessageId = data.messageId;
@@ -399,6 +401,8 @@ function App() {
                 ? 'bg-accent1'
                 : state === State.PROCESSING
                 ? 'bg-accent2'
+                : state === State.Singel
+                ? 'bg-accent2'
                 : ''
             } text-light flex justify-center items-center rounded-full transition-all hover:opacity-80 focus:opacity-80`}
             onClick={recognizeSpeech}
@@ -409,6 +413,8 @@ function App() {
                 : state === State.LISTENING
                 ? 'Listening'
                 : state === State.PROCESSING
+                ? 'Processing'
+                : state === State.Singel
                 ? 'Processing'
                 : ''
             }
@@ -423,7 +429,11 @@ function App() {
               <div className="animate-spin-2">
                 <Loader strokeWidth={1} size={32} />
               </div>
-            ) : null}
+            ) : state === State.Singel ? (
+              <div className="animate-spin-2">
+                <Loader strokeWidth={1} size={32} />
+              </div>
+            ): null}
           </button>
 
           <Button aria-label="New conversation" onClick={resetConversation}>
