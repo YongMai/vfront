@@ -66,9 +66,9 @@ const savedData = Storage.load();
 function App() {
   async function checkCurrentAuth() {
     const urlParams = new URLSearchParams(window.location.search);
-    const param1 = urlParams.get('param1');
-    const param2 = urlParams.get('param2');
-    const signature = urlParams.get('signature');
+    const param1 = urlParams.get('param1') ?? '';
+const param2 = urlParams.get('param2') ?? '';
+const signature = urlParams.get('signature') ?? '';
   
     //const password = passwordFromParam || passwordFromLocalStorage;
     
