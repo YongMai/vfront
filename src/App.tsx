@@ -290,13 +290,7 @@ const signature = urlParams.get('signature') ?? '';
     
     
 
-  if (!browserSupportsSpeechRecognition) {
-    return (
-      <div>
-        This browser doesn't support speech recognition. Please use Chrome.
-      </div>
-    );
-  }
+  
 
   return (
     <div className="container mx-auto px-8 py-9 flex flex-col h-screen gap-y-4 lg:px-28 lg:py-12 lg:relative">
