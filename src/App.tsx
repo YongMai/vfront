@@ -64,6 +64,21 @@ enum State {
 const savedData = Storage.load();
 
 function App() {
+  async function checkCurrentAuth() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const param1 = urlParams.get('param1');
+    const param2 = urlParams.get('param2');
+    const signature = urlParams.get('signature');
+  
+    //const password = passwordFromParam || passwordFromLocalStorage;
+    
+  const auth = await API.auth(param1, param2, signature)
+    
+    const responseJson = await auth.json();
+    if (responseJson.code !== 0) window.location.href = 'https://yongmai.xyz/myvip';
+  }
+  checkCurrentAuth();  
+  
   const {
     browserSupportsSpeechRecognition,
     isMicrophoneAvailable,
