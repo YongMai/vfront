@@ -34,7 +34,7 @@ class APIClient {
   async  auth(param1: string, param2: string, signature: string) {
   const secretKey = import.meta.env.VITE_SECRET_KEY;
 
-  async function createSha256Hash(ata: string , _secretKey: string) {
+  async function createSha256Hash(data: string , _secretKey: string) {
     const encoder = new TextEncoder();
     const dataUint8Array = encoder.encode(data);
     const key = await crypto.subtle.importKey(
