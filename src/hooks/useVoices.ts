@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { isIOS, isSafari } from 'react-device-detect';
+import { isMobile, isSafari } from 'react-device-detect';
 
 export default function useVoices() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -18,7 +18,7 @@ export default function useVoices() {
     // Safari doesn't support `voiceschanged` event, so we have to
     // periodically check if voices are loaded.
     // So is any mobile browser on iOS.
-       if (isSafari || isIOS) {
+       if (isSafari || isMobile) {
       let interval = setInterval(() => {
        
 const newVoices = window.speechSynthesis.getVoices();
