@@ -77,7 +77,7 @@ const signature = urlParams.get('signature') ?? '';
     const responseJson = await auth.json();
     if (responseJson.code !== 0) window.location.href = 'https://yongmai.xyz/myvip';
   }
-  checkCurrentAuth();  
+  //checkCurrentAuth();  
   
   const {
     browserSupportsSpeechRecognition,
