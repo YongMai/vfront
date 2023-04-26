@@ -48,6 +48,6 @@ if (newVoices.length > 0) {
         }
     }
   
-
+}, []);
   return { voices, defaultVoice };
 }
